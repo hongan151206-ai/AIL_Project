@@ -1,5 +1,5 @@
 """
-exp_core.py  -  reproducible experiment core for the ICTAI 2026 rewrite.
+exp_core.py  -  reproducible experiment core.
 Mirrors the original dataset.py preprocessing exactly, drops MLP, and adds
 stronger learners (XGBoost, LightGBM, HistGB) plus a stacking ensemble.
 All numbers downstream come from THIS code on the real telemetry.

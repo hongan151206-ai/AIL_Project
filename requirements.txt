@@ -11,7 +11,7 @@ shap==0.52.0
 scipy>=1.11
 matplotlib>=3.7
 
-# Only for code/shoot_app.py (screenshot of app/index.html -> paper/figs/fig_tool.pdf);
+# Only for code/shoot_app.py (screenshot of app/index.html -> figures/fig_tool.pdf);
 # after installing, run:  playwright install chromium
 playwright>=1.40
 Pillow>=10.0

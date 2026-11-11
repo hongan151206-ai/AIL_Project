@@ -6,7 +6,7 @@ from style import apply_style, INK, MUTE
 import analysis2 as A
 apply_style()
 ROOT=Path(__file__).resolve().parents[1]                           # repo root
-FIG=str(ROOT/"paper"/"figs")+"/"; os.makedirs(FIG,exist_ok=True)   # figures go to paper/figs
+FIG=str(ROOT/"figures")+"/"; os.makedirs(FIG,exist_ok=True)   # figures go to figures/
 C=A.COLOR; P=A.PRETTY
 OURS=json.load(open(ROOT/"results"/"ours_final.json"))["OURS"]     # RAS attribution (run_final2.py)
 AUD=json.load(open(ROOT/"results"/"audit_aux.json"))               # explainer audit (run_audit2.py)

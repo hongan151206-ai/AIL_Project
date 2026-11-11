@@ -1,5 +1,5 @@
 """
-analysis2.py - single source of truth for the ICTAI 2026 rewrite (v2).
+analysis2.py - single source of truth for the reported numbers.
 RAW metrics are the executed results from run_final.py / run_rob.py on the real
 telemetry, plus the project's own summary CSVs for Random Forest and Gradient
 Boosting (reproduced exactly for Ridge and CatBoost). DERIVED quantities

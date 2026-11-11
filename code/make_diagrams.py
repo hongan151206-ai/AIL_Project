@@ -4,7 +4,7 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Rectangle, Circl
 from style import apply_style, INK, MUTE
 apply_style()
 import os
-FIG=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","paper","figs")+os.sep   # works from any cwd
+FIG=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","figures")+os.sep   # works from any cwd
 os.makedirs(FIG, exist_ok=True)
 # fresh cool palette: blue / teal / purple
 BLUE="#2563A8"; TEAL="#2A9D8F"; PURP="#6A4C93"

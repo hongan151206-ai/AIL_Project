@@ -7,8 +7,9 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 
 APP = pathlib.Path(__file__).resolve().parents[1] / "app" / "index.html"
-OUT_PNG = pathlib.Path(__file__).resolve().parents[1] / "paper" / "figs" / "fig_tool.png"
-OUT_PDF = pathlib.Path(__file__).resolve().parents[1] / "paper" / "figs" / "fig_tool.pdf"
+OUT_PNG = pathlib.Path(__file__).resolve().parents[1] / "figures" / "fig_tool.png"
+OUT_PDF = pathlib.Path(__file__).resolve().parents[1] / "figures" / "fig_tool.pdf"
+OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
 
 with sync_playwright() as p:
     b = p.chromium.launch()
