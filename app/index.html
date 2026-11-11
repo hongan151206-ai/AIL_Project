@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TRUST-UAV · Multi-criteria Deployment Decision Support</title>
+<style>
+  :root{
+    --blue:#2563A8; --teal:#2A9D8F; --amber:#C8841F; --purp:#6A4C93;
+    --green:#3A8E5A; --crim:#B83C32; --brown:#B08968;
+    --ink:#1a1a1a; --mute:#6b7280; --line:#e3e7ed; --bg:#eef1f5;
+    --card:#ffffff; --hilite:#eaf2fb; --track:#e5e8ec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .app{max-width:1060px;margin:26px auto;background:var(--card);border:1px solid var(--line);
+       border-radius:14px;box-shadow:0 10px 30px rgba(11,31,58,.10);overflow:hidden}
+  .titlebar{display:flex;align-items:center;gap:12px;background:var(--blue);color:#fff;
+       padding:12px 18px}
+  .dots{display:flex;gap:7px}
+  .dots i{width:12px;height:12px;border-radius:50%}
+  .d1{background:#FF5F57}.d2{background:#FEBC2E}.d3{background:#28C840}
+  .titlebar b{font-size:17px;letter-spacing:.2px}
+  .titlebar .sub{color:#d6e4f5;font-size:13px}
+  .titlebar .right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#cfe0f4}
+  .live{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#dff5e9}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:#43e08a}
+  .grid{display:grid;grid-template-columns:1fr 1.05fr 1.15fr;gap:16px;padding:18px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:11px;padding:16px}
+  .panel h3{margin:0 0 12px;font-size:12.5px;letter-spacing:.6px;color:#374151;text-transform:uppercase}
+  .slider{margin-bottom:14px}
+  .slider .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .slider .row .val{font-weight:700}
+  input[type=range]{width:100%;height:6px;border-radius:4px;appearance:none;background:var(--track);outline:none}
+  input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;
+       background:#fff;border:2.5px solid var(--blue);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;
+       border:2.5px solid var(--blue);cursor:pointer}
+  .presets{display:flex;gap:7px;margin:4px 0 16px}
+  .presets button{flex:1;font-size:11.5px;padding:6px 4px;border:1px solid var(--line);
+       background:#f8fafc;border-radius:7px;cursor:pointer;color:#374151}
+  .presets button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .cons label{display:flex;align-items:center;gap:9px;font-size:13px;color:#374151;
+       padding:6px 0;cursor:pointer}
+  .cons input{width:16px;height:16px;accent-color:var(--blue)}
+  .rec{background:#fff;border:1.6px solid var(--blue);border-radius:11px;padding:14px 14px 16px;
+       display:flex;flex-direction:column;align-items:center;text-align:center}
+  .rec .tag{background:var(--hilite);color:var(--blue);font-weight:800;font-size:12.5px;
+       letter-spacing:.6px;padding:6px 14px;border-radius:20px;margin-bottom:6px}
+  .rec .name{font-size:24px;font-weight:800;line-height:1.05;margin:5px 0 2px}
+  .rec .uts{color:var(--mute);font-size:12.5px}
+  .rec .uts b{color:var(--blue);font-size:20px;display:block;margin-top:2px}
+  .stats{display:flex;gap:18px;margin:12px 0 6px}
+  .stats div{text-align:center}
+  .stats .v{font-weight:700;font-size:15px}
+  .stats .l{color:var(--mute);font-size:11px}
+  .rec hr{border:none;border-top:1px solid var(--line);width:100%;margin:8px 0}
+  .rec .rationale{font-size:12px;color:#4b5563;line-height:1.5}
+  .deploy{margin-top:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;
+       padding:9px 20px;font-weight:700;font-size:13.5px;cursor:pointer}
+  .rank .item{display:grid;grid-template-columns:16px 1fr auto 92px 34px;align-items:center;
+       gap:8px;padding:7px 8px;border-radius:8px}
+  .rank .item.top{background:var(--hilite)}
+  .rank .idx{color:#9aa1ac;font-size:13px}
+  .rank .nm{font-size:13.5px}
+  .rank .nm.b{font-weight:800}
+  .rank .par{width:17px;height:17px;border:1px solid var(--blue);border-radius:50%;
+       color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .bar{height:9px;border-radius:5px;background:var(--track);overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:5px}
+  .sc{text-align:right;font-size:12.5px;color:#374151}
+  .note{color:var(--mute);font-size:11.5px;padding:0 18px 16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="titlebar">
+    <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+    <b>TRUST-UAV</b><span class="sub">Deployment Decision Support</span>
+    <div class="right"><span class="live"><span class="dot"></span>LIVE</span><span>v3.0</span></div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: mission profile -->
+    <div class="panel">
+      <h3>Mission profile</h3>
+      <div class="presets">
+        <button data-p="perf">Performance</button>
+        <button data-p="bal">Balanced</button>
+        <button data-p="safe">Safety</button>
+      </div>
+      <div class="slider">
+        <div class="row"><span>Accuracy</span><span class="val" id="va">0.60</span></div>
+        <input type="range" id="wa" min="0" max="100" value="60"/>
+      </div>
+      <div class="slider">
+        <div class="row"><span>Fidelity</span><span class="val" id="vf">0.20</span></div>
+        <input type="range" id="wf" min="0" max="100" value="20"/>
+      </div>
+      <div class="slider">
+        <div class="row"><span>Robustness</span><span class="val" id="vr">0.20</span></div>
+        <input type="range" id="wr" min="0" max="100" value="20"/>
+      </div>
+      <h3 style="margin-top:18px">Constraints</h3>
+      <div class="cons">
+        <label><input type="checkbox" id="c_cert"/> Regulatory certification</label>
+        <label><input type="checkbox" id="c_rt" checked/> Real-time inference</label>
+        <label><input type="checkbox" id="c_drift" checked/> Sensor drift expected</label>
+      </div>
+    </div>
+
+    <!-- CENTER: recommendation -->
+    <div class="panel" style="display:flex">
+      <div class="rec" style="flex:1">
+        <div class="tag">RECOMMENDED</div>
+        <div class="name" id="rec_name">OURS</div>
+        <div class="uts">Unified Trust Score<b id="rec_uts">0.80</b></div>
+        <div class="stats">
+          <div><div class="v" id="rec_mae">40.8 W</div><div class="l">MAE</div></div>
+          <div><div class="v" id="rec_fid">0.64</div><div class="l">&tau;</div></div>
+          <div><div class="v" id="rec_rob">+14%</div><div class="l">&Delta;@20%</div></div>
+        </div>
+        <hr/>
+        <div class="rationale" id="rec_rat"></div>
+        <button class="deploy">Deploy model</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: ranking -->
+    <div class="panel">
+      <h3>Model ranking</h3>
+      <div style="color:var(--mute);font-size:12px;font-style:italic;margin:-6px 0 8px" id="prof_lbl">profile: performance-critical</div>
+      <div class="rank" id="rank"></div>
+    </div>
+  </div>
+  <div class="note">
+    Trust axes are min&ndash;max normalised across the model pool (higher is better on each);
+    the Unified Trust Score is their weighted sum. Constraints act as hard filters.
+    Numbers reproduce the paper's held-out flight-telemetry results.
+  </div>
+</div>
+
+<script>
+// Raw held-out results (RAS = "OURS"). Lower MAE / lower dMAE better; higher tau better.
+const MODELS = [
+  {name:"OURS",       mae:40.82, fid:0.636, rob:14.2, color:"var(--blue)"},
+  {name:"CatBoost",   mae:41.01, fid:0.606, rob:16.4, color:"var(--teal)"},
+  {name:"GradBoost",  mae:41.68, fid:0.576, rob:17.0, color:"var(--green)"},
+  {name:"LightGBM",   mae:41.19, fid:0.606, rob:26.7, color:"var(--amber)"},
+  {name:"RandForest", mae:42.05, fid:0.515, rob:18.9, color:"var(--brown)"},
+  {name:"XGBoost",    mae:41.27, fid:0.636, rob:44.3, color:"var(--crim)"},
+  {name:"Ridge",      mae:47.90, fid:0.970, rob:2.8,  color:"var(--purp)"},
+];
+const PARETO = new Set(["OURS","Ridge"]);
+const PRESETS = {perf:[60,20,20], bal:[34,33,33], safe:[20,50,30]};
+const PROF_NAME = {perf:"performance-critical", bal:"balanced", safe:"safety-critical"};
+
+function minmax(vals){const mn=Math.min(...vals),mx=Math.max(...vals);return {mn,mx};}
+const maes=MODELS.map(m=>m.mae), fids=MODELS.map(m=>m.fid), robs=MODELS.map(m=>m.rob);
+const A=minmax(maes), F=minmax(fids), R=minmax(robs);
+function norm(m){
+  return {
+    acc:1-(m.mae-A.mn)/(A.mx-A.mn),          // lower MAE -> higher
+    fid:(m.fid-F.mn)/(F.mx-F.mn),            // higher tau -> higher
+    rob:1-(m.rob-R.mn)/(R.mx-R.mn),          // lower dMAE -> higher
+  };
+}
+
+function currentPreset(wa,wf,wr){
+  for(const [k,v] of Object.entries(PRESETS)){
+    if(v[0]===wa && v[1]===wf && v[2]===wr) return k;
+  }
+  return null;
+}
+
+function passesConstraints(m){
+  const cert=document.getElementById("c_cert").checked;
+  const drift=document.getElementById("c_drift").checked;
+  // Certification: require certification-grade fidelity (only near-linear models qualify).
+  if(cert && m.fid < 0.90) return false;
+  // Sensor drift expected: exclude models that shed > 40% accuracy under noise.
+  if(drift && m.rob > 40.0) return false;
+  return true;
+}
+
+function render(){
+  let wa=+document.getElementById("wa").value;
+  let wf=+document.getElementById("wf").value;
+  let wr=+document.getElementById("wr").value;
+  const sum=(wa+wf+wr)||1;
+  const na=wa/sum, nf=wf/sum, nr=wr/sum;
+  document.getElementById("va").textContent=na.toFixed(2);
+  document.getElementById("vf").textContent=nf.toFixed(2);
+  document.getElementById("vr").textContent=nr.toFixed(2);
+
+  const pk=currentPreset(wa,wf,wr);
+  document.querySelectorAll(".presets button").forEach(b=>
+    b.classList.toggle("active", b.dataset.p===pk));
+  document.getElementById("prof_lbl").textContent =
+    "profile: " + (pk?PROF_NAME[pk]:"custom");
+
+  const scored = MODELS.map(m=>{
+    const n=norm(m);
+    return {...m, uts:na*n.acc+nf*n.fid+nr*n.rob, ok:passesConstraints(m)};
+  });
+  const ranked=[...scored].sort((x,y)=>{
+    if(x.ok!==y.ok) return x.ok? -1: 1;   // feasible first
+    return y.uts-x.uts;
+  });
+
+  // recommendation = best feasible
+  const rec = ranked.find(m=>m.ok) || ranked[0];
+  document.getElementById("rec_name").textContent=rec.name;
+  document.getElementById("rec_uts").textContent=rec.uts.toFixed(2);
+  document.getElementById("rec_mae").textContent=rec.mae.toFixed(1)+" W";
+  document.getElementById("rec_fid").textContent=rec.fid.toFixed(2);
+  document.getElementById("rec_rob").textContent="+"+rec.rob.toFixed(1)+"%";
+  const bits=[];
+  if(rec.name==="OURS") bits.push("Most accurate; Pareto-dominates every baseline.");
+  if(rec.fid>=0.90) bits.push("Certification-grade explanation fidelity.");
+  if(rec.rob<=15) bits.push("Minimal degradation under sensor noise.");
+  bits.push("Consensus flags payload as the dominant power driver.");
+  document.getElementById("rec_rat").textContent=bits.join(" ");
+
+  const box=document.getElementById("rank"); box.innerHTML="";
+  ranked.forEach((m,i)=>{
+    const div=document.createElement("div");
+    div.className="item"+(m.name===rec.name?" top":"");
+    div.style.opacity=m.ok?"1":"0.42";
+    div.innerHTML=
+      `<span class="idx">${i+1}</span>`+
+      `<span class="nm ${m.name==='OURS'?'b':''}">${m.name}</span>`+
+      `<span>${PARETO.has(m.name)?'<span class="par">P</span>':''}</span>`+
+      `<span class="bar"><span style="width:${(m.uts*100).toFixed(0)}%;background:${m.color}"></span></span>`+
+      `<span class="sc">${m.uts.toFixed(2)}</span>`;
+    box.appendChild(div);
+  });
+}
+
+function setPreset(k){
+  const [a,f,r]=PRESETS[k];
+  document.getElementById("wa").value=a;
+  document.getElementById("wf").value=f;
+  document.getElementById("wr").value=r;
+  render();
+}
+
+["wa","wf","wr"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+["c_cert","c_rt","c_drift"].forEach(id=>document.getElementById(id).addEventListener("change",render));
+document.querySelectorAll(".presets button").forEach(b=>
+  b.addEventListener("click",()=>setPreset(b.dataset.p)));
+document.querySelector(".deploy").addEventListener("click",()=>{
+  const n=document.getElementById("rec_name").textContent;
+  alert("Deploying "+n+" (demo). In production this calls the serving endpoint in Fig. 6.");
+});
+
+render();
+</script>
+</body>
+</html>
